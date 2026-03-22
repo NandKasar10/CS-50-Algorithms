@@ -33,3 +33,54 @@ class QueueFrontier( StackFrontier ):
             raise Exception("Empty Frontier")
         else:
             return self.frontier.pop(0)
+
+paths = {
+    'A':['B','C'],
+    'B':['D'],
+    'C':['E'],
+    'D':['E'],
+    'E':['F'],
+    'F':[]
+}
+
+frontier = QueueFrontier()
+
+start = Node('A',None,None)
+
+frontier.add(start)
+
+explored = set()
+
+goal_state = 'F'
+
+while True:
+
+    if frontier.empty():
+        print("No solution !")
+        break
+
+    node = frontier.remove()
+
+    if(node.state == goal_state):
+        path = []
+        while(node):
+            path.append(node.state)
+            node = node.parent
+
+        path.reverse()
+        print(" -> ".join(path))
+        break
+
+    explored.add(node.state)
+
+    for neighbour in reversed(paths[node.state]):
+
+        if (neighbour in explored) or (frontier.contains_state(neighbour)) : continue
+        temp_node = Node(neighbour,node,None)
+        frontier.add(temp_node)
+
+    
+        
+
+
+
