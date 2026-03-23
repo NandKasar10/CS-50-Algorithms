@@ -1,9 +1,5 @@
-from search_oops import QueueFrontier, Node, StackFrontier
-
 class Maze:
     def __init__(self, filename):
-
-        self.solution = None
 
         with open(filename) as f:
             contents = f.read()
@@ -55,67 +51,13 @@ class Maze:
 
                 elif self.walls[i][j] == True:
                     print("███",end="")
-
-                elif self.solution and (i, j) in self.solution:
-                    print(" + ", end="")
                 
                 else :
                     print("   ",end="")
             print("")
-
-    def neighbors(self, state):
-        row, col = state
-
-        candidates = [
-            (row-1, col),
-            (row+1, col),
-            (row, col-1),
-            (row, col+1)
-        ]
-
-        result = []
-
-        for r, c in candidates:
-            if 0 <= r < self.height and 0 <= c < self.width:
-                if not self.walls[r][c]:
-                    result.append((r, c))
-
-        return result
                 
-    def solve(self):
-
-        start = Node(self.start, None, None)
-        frontier = QueueFrontier()
-        frontier.add(start)
-
-        explored = set()
-
-        while True:
-
-            if frontier.empty():
-                raise Exception("No solution")
-
-            node = frontier.remove()
-
-            if node.state == self.goal:
-                path = []
-                while node and node.parent:
-                    path.append(node.state)
-                    node = node.parent
-                path.reverse()
-                self.solution = path
-
-                break
-
-            explored.add(node.state)
-
-            for state in self.neighbors(node.state):
-                if state not in explored and not frontier.contains_state(state):
-                    child = Node(state, node, None)
-                    frontier.add(child)
 
 
 
 maze = Maze("./Search/maze1.txt");
-maze.solve();
 maze.print_maze();
