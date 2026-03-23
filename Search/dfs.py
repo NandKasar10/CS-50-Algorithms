@@ -34,7 +34,7 @@ while stack:
 
     visited.add(curr)
 
-    for neighbour in reversed(paths[curr]):  # maintain order
+    for neighbour in reversed(paths[curr]):  
         if neighbour not in visited and neighbour not in stack:
             stack.append(neighbour)
             parent[neighbour] = curr
