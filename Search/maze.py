@@ -1,4 +1,6 @@
 from search_oops import QueueFrontier, Node, StackFrontier
+from PIL import Image, ImageDraw
+
 
 class Maze:
     def __init__(self, filename):
@@ -115,7 +117,52 @@ class Maze:
                     frontier.add(child)
 
 
+    def output_image(self, filename, show_solution=True):
 
-maze = Maze("./Search/maze1.txt");
+        cell_size = 80
+        cell_border = 2
+
+        # create blank image
+        img = Image.new(
+            "RGB",
+            (self.width * cell_size, self.height * cell_size),
+            "black"
+        )
+
+        draw = ImageDraw.Draw(img)
+
+        for i in range(self.height):
+            for j in range(self.width):
+
+                # decide color
+                if self.walls[i][j]:
+                    fill = (40, 40, 40)  # wall
+
+                elif (i, j) == self.start:
+                    fill = (255, 0, 0)   # start (red)
+
+                elif (i, j) == self.goal:
+                    fill = (0, 255, 0)   # goal (green)
+
+                elif show_solution and self.solution and (i, j) in self.solution:
+                    fill = (220, 235, 113)  # path (yellow)
+
+                else:
+                    fill = (237, 240, 252)  # empty
+
+                # draw rectangle
+                draw.rectangle(
+                    [
+                        (j * cell_size + cell_border, i * cell_size + cell_border),
+                        ((j + 1) * cell_size - cell_border, (i + 1) * cell_size - cell_border)
+                    ],
+                    fill=fill
+                )
+
+        img.save(filename)
+
+
+maze = Maze("./maze1.txt");
 maze.solve();
 maze.print_maze();
+maze.output_image("maze.png");
