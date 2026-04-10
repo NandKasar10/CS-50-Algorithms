@@ -1,10 +1,9 @@
-import sys
-
 class Node:
-    def __init__(self, state, parent, action):
+    def __init__(self, state, parent, action, cost = 0):
         self.state = state
         self.parent = parent
         self.action = action
+        self.cost = cost
 
 
 class StackFrontier:
@@ -33,6 +32,31 @@ class QueueFrontier( StackFrontier ):
             raise Exception("Empty Frontier")
         else:
             return self.frontier.pop(0)
+        
+
+import heapq
+
+class PriorityQueueFrontier:
+    def __init__(self):
+        self.frontier = []
+        self.count = 0
+
+    def add(self, priority, node):
+        node.cost += 1;
+        heapq.heappush(self.frontier, (priority, self.count, node))
+        self.count += 1
+
+    def contains_state(self, state):
+        return any(node.state == state for _, _, node in self.frontier)
+
+    def empty(self):
+        return len(self.frontier) == 0
+
+    def remove(self):
+        if self.empty():
+            raise Exception("Empty Frontier")
+        _, _, node = heapq.heappop(self.frontier)
+        return node
 
 paths = {
     'A':['B','C'],

@@ -1,4 +1,4 @@
-from search_oops import QueueFrontier, Node, StackFrontier
+from search_oops import QueueFrontier, Node, StackFrontier, PriorityQueueFrontier
 from PIL import Image, ImageDraw
 
 
@@ -23,6 +23,9 @@ class Maze:
 
         lines = contents.splitlines()
 
+        # for line in lines:
+        #     print(len(line), line)  
+
         for i in range(self.height):
             row = []
             for j in range(self.width):
@@ -37,7 +40,7 @@ class Maze:
                 elif char == "#":
                     row.append(True)
 
-                else :  row.append(False)
+                else : row.append(False)
             self.walls.append(row);
 
 
@@ -83,7 +86,86 @@ class Maze:
                     result.append((r, c))
 
         return result
+    
+    def heuristic(self,state):
+        return abs(state[0] - self.goal[0]) + abs(state[1] - self.goal[1])
                 
+
+    def solve_greedy(self):
+
+        start = Node(self.start, None, None)
+        h = self.heuristic(start.state)
+        frontier = PriorityQueueFrontier()
+        frontier.add(h,start)
+
+        explored = set()
+
+        while True :
+
+            if frontier.empty():
+                raise Exception("No solution")
+            
+            node = frontier.remove()
+
+            if node.state == self.goal :
+                path = []
+                while node :
+                    path.append(node.state)
+                    node = node.parent
+
+                path.reverse()
+                self.solution = path
+
+                break
+            
+            explored.add(node.state)
+
+            for state in self.neighbors(node.state):
+                if state not in explored and not frontier.contains_state(state) :
+                    child = Node(state, node, None)
+                    h = self.heuristic(state)
+                    frontier.add(h,child)
+
+
+    def solve_a_star(self):
+
+        start = Node(self.start, None, None, 0)
+        h = self.heuristic(start.state)
+        frontier = PriorityQueueFrontier()
+        frontier.add(h + start.cost,start)
+
+        explored = set()
+
+        while True :
+
+            if frontier.empty():
+                raise Exception("No solution")
+            
+            node = frontier.remove()
+
+            if node.state == self.goal :
+                path = []
+                while node :
+                    path.append(node.state)
+                    node = node.parent
+
+                path.reverse()
+                self.solution = path
+
+                break
+            
+            explored.add(node.state)
+
+            for state in self.neighbors(node.state):
+                if state not in explored and not frontier.contains_state(state) :
+                    child = Node(state, node, None, node.cost + 1)
+                    h = self.heuristic(state)
+                    frontier.add(h+child.cost,child)
+
+
+            
+
+
     def solve(self):
 
         start = Node(self.start, None, None)
@@ -162,7 +244,7 @@ class Maze:
         img.save(filename)
 
 
-maze = Maze("./maze1.txt");
-maze.solve();
+maze = Maze("./maze3.txt");
+maze.solve_a_star();
 maze.print_maze();
 maze.output_image("maze.png");
