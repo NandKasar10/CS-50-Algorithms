@@ -140,58 +140,83 @@ def utility(board):
     return 0
 
 
-def max_value(board):
+def max_value(board, alpha, beta):
     if terminal(board):
         return utility(board)
     
-    else :
-        maxx = float('-inf')
-        for action in actions(board):
-            new_board = result(board,action)
-            maxx = max(maxx,min_value(new_board))
-        return maxx;
+    global node_count
+    node_count += 1
 
-def min_value(board):
+    maxx = float('-inf')
+    for action in actions(board):
+        new_board = result(board,action)
+        value = min_value(new_board, alpha, beta)
+        maxx = max(maxx, value)
+        alpha = max(maxx, alpha)
+        if alpha >= beta:
+            break
+    return maxx
+
+def min_value(board, alpha, beta):
     if terminal(board):
         return utility(board)
     
-    else :
-        minn = float('inf')
-        for action in actions(board):
-            new_board = result(board,action)
-            minn = min(minn,max_value(new_board))
-        return minn;
+    global node_count
+    node_count += 1
+    
+    minn = float('inf')
+    for action in actions(board):
+        new_board = result(board,action)
+        value = max_value(new_board, alpha, beta)
+        minn = min(minn,value)
+        beta = min(minn, beta)
+        if beta <= alpha:
+            break
+    return minn
 
 
 def minimax(board):
+
     
     if terminal(board):
         return None
     
     best_action = None       
 
+    alpha = float('-inf')
+    beta = float('inf')
+
     if player(board) == "X":
 
-        curr = -2;
+        curr = float("-inf");
         for action in actions(board):
 
-            value = min_value(result(board,action))
+            if alpha >= beta:
+                break
+
+            value = min_value(result(board,action), alpha, beta)
 
             if curr < value :
                 best_action = action
                 curr = value
+            
 
+            alpha = max(alpha, curr)
 
     else:
-        curr = 2;
+        curr = float('inf');
         for action in actions(board):
 
-            value = max_value(result(board,action))
+            if beta <= alpha:
+                break
+
+            value = max_value(result(board,action), alpha, beta)
 
             if curr > value :
                 best_action = action
                 curr = value
             
+            beta = min(beta, curr)
 
     return best_action    
     
@@ -227,10 +252,12 @@ while not terminal(board):
         col = int(input("Enter the column : "))
 
         while True:
-            if(row >= 0 and row < 3 and col >= 0 and col < 3):
+            if(row >= 0 and row < 3 and col >= 0 and col < 3 and board[row][col] is None):
                 break 
+
             else :
-                print("Please, give valid row and column number !!!")
+                if board[row][col] is not None : print("Already filled, Please try different Block !!!")
+                else : print("Please, give valid row and column number !!!")
                 row = int(input("Enter the row : "))
                 col = int(input("Enter the column : "))
 
@@ -238,10 +265,12 @@ while not terminal(board):
 
     else :
 
+        node_count = 0
 
         best_action = minimax(board)
         print(f"AI chose: {best_action}")
         board = result(board,best_action)
+        print("Nodes explored:", node_count)
         # print_board(board)
         
 
